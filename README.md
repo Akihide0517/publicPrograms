@@ -15,3 +15,9 @@ O＋＋.jarはjavaで自作した擬似プログラミング言語です。以�
   ]],
   ["get", "sum"]
 ]
+
+javascriptを利用して作成したページは以下の二つです
+
+https://damakatu.web.fc2.com/Yunitiate/neel.html
+
+http://damakatu.html.xdomain.jp/customizable_website.html
