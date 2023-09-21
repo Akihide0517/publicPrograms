@@ -1,0 +1,86 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class OVRHeightController : MonoBehaviour
+{
+    public float InitialAdjustment;
+
+    [SerializeField]
+    LineRenderer rayObject;
+
+    public string UpKeyKeybord = "3";
+    public KeyCode UpKeyCode = KeyCode.JoystickButton3;
+    public string DownKeyKeybord = "2";
+    public KeyCode DownKeyCode = KeyCode.JoystickButton2;
+    public string RecenterKeybord = "r";
+    public KeyCode RecenterCode = KeyCode.JoystickButton6;
+
+    private CharacterController controller;
+    public float jumpHeight = 2.0f;
+    private float gravity = -9.81f;
+    private float verticalVelocity = 0.0f;
+
+    [SerializeField, Range(5, 30)]
+    int raySize = 10;
+    private bool raymode = false;
+    public GameObject block;
+    public KeyCode SETKeyCode = KeyCode.JoystickButton3;
+    public KeyCode DELKeyCode = KeyCode.JoystickButton3;
+
+    Transform TrackingSpaceTransform = null;
+
+    public Transform TrackingTransform = null;
+
+    void Start()
+    {
+        rayObject.enabled = false;
+        OVRCameraRig[] rigs;
+        rigs = gameObject.GetComponentsInChildren<OVRCameraRig>();
+
+        if (rigs.Length == 0)
+            Debug.LogWarning("OVRCameraRig not found.");
+        else if (rigs.Length > 1)
+            Debug.LogWarning("OVRCameraRig some found.");
+        else
+        {
+            this.TrackingSpaceTransform = rigs[0].transform.Find("TrackingSpace");
+            var p = this.TrackingSpaceTransform.transform.localPosition;
+            p.y += InitialAdjustment;
+            this.TrackingSpaceTransform.transform.localPosition = p;
+        }
+
+        controller = GetComponent<CharacterController>();
+    }
+
+    void LateUpdate()
+    {
+        if (this.TrackingSpaceTransform)
+        {
+            var p = this.TrackingSpaceTransform.transform.localPosition;
+            if (Input.GetKey(UpKeyKeybord) || Input.GetKey(UpKeyCode))
+            {
+                p.y += 0.01f;
+            }
+            else if (Input.GetKey(DownKeyKeybord) || Input.GetKey(DownKeyCode))
+            {
+                p.y -= 0.01f;
+            }
+            this.TrackingSpaceTransform.transform.localPosition = p;
+
+            // Recenter Pose
+            if (Input.GetKeyDown(RecenterKeybord) || Input.GetKeyDown(RecenterCode))
+            {
+                OVRManager.display.RecenterPose();
+            }
+        }
+
+            Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
+            moveDirection = transform.TransformDirection(moveDirection);
+            moveDirection *= 5.0f; // 移動速度を調整
+            moveDirection.y = verticalVelocity;
+
+            controller.Move(moveDirection * Time.deltaTime);
+        }
+    }
+}
