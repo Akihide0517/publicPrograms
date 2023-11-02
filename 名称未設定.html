@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <title>Unix時刻操作</title>
+</head>
+<body>
+    <h1>Unix時刻操作</h1>
+
+    <div id="currentUnixTime">
+        <h2>現在のUnix時刻</h2>
+        <p id="currentUnixTimeResult"></p>
+    </div>
+
+    <div id="randomUnixTimeToDate">
+        <h2>ランダムなUnix時刻からの日付</h2>
+        <button onclick="generateRandomUnixTime()">ランダムなUnix時刻生成</button>
+        <p id="randomUnixTimeResult"></p>
+    </div>
+
+    <div id="currentDate">
+        <h2>現在のUnix時刻から今日の日付</h2>
+        <p id="currentDateResult"></p>
+    </div>
+
+    <script>
+        // 現在のUnix時刻を取得
+        const currentUnixTime = Math.floor(Date.now() / 1000);
+        document.getElementById("currentUnixTimeResult").textContent = currentUnixTime;
+
+        // ランダムなUnix時刻から日付を算出
+        function generateRandomUnixTime() {
+            const randomUnixTime = Math.floor(Math.random() * (currentUnixTime + 1));
+            const date = new Date(randomUnixTime * 1000);
+            document.getElementById("randomUnixTimeResult").textContent = date.toISOString();
+        }
+
+        // 現在のUnix時刻から今日の日付を算出
+        const currentDate = new Date(currentUnixTime * 1000);
+        const formattedDate = `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月 ${currentDate.getDate()}日 ${currentDate.getHours()}時 ${currentDate.getMinutes()}分 ${currentDate.getSeconds()}秒`;
+        document.getElementById("currentDateResult").textContent = formattedDate;
+    </script>
+</body>
+</html>
