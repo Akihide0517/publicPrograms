@@ -1,0 +1,84 @@
+from sklearn import svm
+import numpy as np
+
+# クラスの数を指定する配列
+class_sizes = np.array([3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 10, 10, 10, 10, 10, 10, 10, 10, 10, 7, 7, 7, 7, 7, 7])
+
+# クラスラベルを生成
+num_classes = len(class_sizes)
+num_samples_per_class = 1  # 各クラスごとに9個のデータを持つと仮定
+
+# クラスラベルを生成
+y = class_sizes
+
+# データのサンプル数を表示
+print("Class Labels (y):", y)
+print("Class Sizes:", class_sizes)
+print("Total Samples:", len(y))
+
+# データをPCAした結果を使用
+X = pca_result
+print(len(pca_result))
+
+# SVMモデルを作成し、訓練
+clf = svm.SVC(kernel='linear', C=1)
+clf.fit(X, y)
+
+# プロット用のメッシュグリッドを作成
+h = .02  # ステップサイズ
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+
+# メッシュグリッド上の各点に対する予測
+Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+# プロット
+plt.figure(figsize=(10, 8))
+
+# SVMの分類結果を色で表示
+plt.contourf(xx, yy, Z, cmap=plt.cm.Paired, alpha=0.8)
+
+# データポイントをプロット
+for i in range(0, len(pca_result), 3):
+    color_index = i // 3
+    marker_index = i // 3 % len(markers)
+    end_index = min(i + 3, len(pca_result))
+    
+    plt.scatter(pca_result[i:end_index, 0], pca_result[i:end_index, 1],
+                label=f'Data Points {i+1}-{end_index}',
+                color=colors(color_index), marker=markers[marker_index])
+
+    # 各点に数字を追加
+    for j in range(end_index - i):
+        plt.text(pca_result[i+j, 0], pca_result[i+j, 1], str(i+j+1), fontsize=8, ha='right', va='bottom')
+
+# 主成分の寄与率を表示
+for idx, ratio in enumerate(pca.explained_variance_ratio_):
+    plt.text(0.95, 0.85 - 0.05 * idx, f'PC{idx + 1} Var: {ratio:.2f}', transform=plt.gca().transAxes, ha='right', fontsize=8)
+
+# SVMのサポートベクトルをプロット
+plt.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1], s=100, facecolors='none', edgecolors='k', marker='o', label='Support Vectors')
+
+# 主成分の方向を矢印で表示
+for i in range(len(pca.explained_variance_ratio_)):
+    plt.arrow(0, 0, pca.components_[i, 0], pca.components_[i, 1], head_width=0.2, head_length=0.2, fc='orange', ec='orange')
+
+# プロットの設定
+plt.title('PCA: FFT Components with SVM Classification Result')
+plt.xlabel('First Principal Component')
+plt.ylabel('Second Principal Component')
+
+# 凡例を別の表として表示
+handles, labels = plt.gca().get_legend_handles_labels()
+plt.legend(handles, labels, loc='upper right', fontsize=10, ncol=4, title='Date', bbox_to_anchor=(1, -0.1))
+
+# グリッドを表示
+plt.grid(True)
+
+# データのサンプル数を表示
+plt.text(0.5, -0.1, f'Sample Size: {len(pca_result)}', transform=plt.gca().transAxes, ha='center', fontsize=10)
+
+# 表示
+plt.show()
