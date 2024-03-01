@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wix-like Website Builder</title>
+  <style>
+    /* CSS スタイル */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .editable {
+      border: 1px dashed #ccc;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+  <script>
+    // JavaScript コード
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const editableElements = document.querySelectorAll('.editable');
+
+      editableElements.forEach((element) => {
+        element.addEventListener('input', (event) => {
+          const text = event.target.innerText;
+          // ユーザーの入力に応じた処理を追加することができます
+          console.log('入力されたテキスト:', text);
+        });
+      });
+
+      // HTML ダウンロード関数
+      function downloadHTML() {
+        const htmlContent = generateHTML();
+        const link = document.createElement('a');
+        link.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent));
+        link.setAttribute('download', 'website.html');
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // HTML 生成関数
+      function generateHTML() {
+        const container = document.createElement('div');
+        container.classList.add('container');
+
+        const editableElements = document.querySelectorAll('.editable');
+        editableElements.forEach((element) => {
+          const text = element.innerText;
+          const paragraph = document.createElement('p');
+          if (element.classList.contains('first-editable')) {
+            const heading = document.createElement('h2');
+            const textNodes = createTextNodes(text);
+            textNodes.forEach((textNode) => {
+              heading.appendChild(textNode);
+            });
+            container.appendChild(heading);
+          } else {
+            paragraph.innerText = text;
+            container.appendChild(paragraph);
+          }
+        });
+
+        const htmlContent = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Generated Website</title>
+        </head>
+        <body>
+
+            ${container.outerHTML}
+
+        </body>
+        </html>`;
+
+        return htmlContent;
+      }
+
+      // 改行を含むテキストノードを生成する関数
+      function createTextNodes(text) {
+        const textArray = text.split('\n');
+        const textNodes = [];
+        textArray.forEach((line, index) => {
+          textNodes.push(document.createTextNode(line));
+          if (index !== textArray.length - 1) {
+            textNodes.push(document.createElement('br'));
+          }
+        });
+        return textNodes;
+      }
+
+      // HTML ダウンロードボタンクリック時の処理
+      const downloadButton = document.getElementById('download-button');
+      downloadButton.addEventListener('click', () => {
+        downloadHTML();
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>簡易webサイトメーカー</h1>
+  <div class="editable first-editable" contenteditable="true">
+    ここにタイトルを追加できます。
+  </div>
+  <div class="editable" contenteditable="true">
+    ここに本文を追加できます。
+  </div>
+  <button id="download-button">HTML ダウンロード</button>
+</body>
+</html>
