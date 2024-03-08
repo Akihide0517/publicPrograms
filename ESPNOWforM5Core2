@@ -1,0 +1,62 @@
+#include <M5Core2.h>
+#include <esp_now.h>
+#include <WiFi.h>
+
+// 受信コールバック
+void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
+  M5.Lcd.println("Data Received:");
+  M5.Lcd.print("From: ");
+  for (int i = 0; i < 6; i++) {
+    M5.Lcd.printf("%02X", mac_addr[i]);
+    if (i < 5) M5.Lcd.print(":");
+  }
+  M5.Lcd.println();
+  
+  M5.Lcd.print("Data: ");
+  for (int i = 0; i < data_len; i++) {
+    M5.Lcd.print(data[i]);
+    M5.Lcd.print(" ");
+  }
+  M5.Lcd.println("\n");
+}
+
+void setup() {
+  M5.begin();
+
+  // ESP-NOW初期化
+  WiFi.mode(WIFI_STA);
+  if (esp_now_init() == ESP_OK) {
+    M5.Lcd.println("ESPNow Init Success");
+  } else {
+    M5.Lcd.println("ESPNow Init Failed");
+    while (1) delay(1);
+  }
+
+  // ESP-NOWコールバック登録
+  esp_now_register_recv_cb(OnDataRecv);
+
+  // ペアリング
+  esp_now_peer_info_t peer;
+  memset(&peer, 0, sizeof(peer));
+  for (int i = 0; i < 6; ++i) {
+    peer.peer_addr[i] = 0xFF;  // ブロードキャストアドレス
+  }
+
+  if (esp_now_add_peer(&peer) != ESP_OK) {
+    M5.Lcd.println("Failed to add peer");
+    while (1) delay(1);
+  }
+}
+
+void loop() {
+  M5.update();
+
+  // ボタンを押したらデータ送信
+  if (M5.BtnA.wasPressed()) {
+    uint8_t data[] = {1, 2, 3};
+    esp_now_send(NULL, data, sizeof(data));
+    M5.Lcd.println("Data Sent");
+  }
+
+  delay(100);
+}
